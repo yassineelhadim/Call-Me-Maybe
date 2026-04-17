@@ -1,0 +1,1 @@
+print("The type of arguments should be either \"string\" or \"number\"")
