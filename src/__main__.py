@@ -13,6 +13,26 @@ def output_list(data: list, prompt: str, name: str, parameters: dict) -> None:
     }
     data.append(x)
 
+
+
+def function_calling(prompts: list[str]) -> None:
+    sdk_object = Small_LLM_Model()
+    for prompt in prompts:
+        # p_t_ids is prompt_token_ids, which is the 2D Tensor that has the id of each token
+        p_t_ids: torch.Tensor = sdk_object.encode(prompt)
+        p_t_ids = p_t_ids.tolist()
+        # list_ids is a 1D list of the token ids
+        list_ids = p_t_ids[0]
+        generation_list = list_ids[0]
+        for t_id in list_ids:
+            prds_probs = sdk_object.get_logits_from_input_ids(generation_list)
+            
+
+
+        
+
+
+
 # Still need to check the functions in json file: no duplicates 
 # (create a list and store seen ones on it and check on each new one),
 # only spicific functions (so hardcoded statment with a list)
@@ -99,6 +119,9 @@ def main() -> None:
     with open("data/output/prompt_output.json", "w") as f:
         json.dump(data, f, indent=2)
 
+    # Function-calling wiht the LLM
+    # encode, send token IDs, choose the highest prob, then repeat 5 times
+    function_calling(input_data)
 
 
 if __name__ == "__main__":
