@@ -11,24 +11,11 @@ uv run python -m src
 
 **steps for the project:**
 
-    1. encode 
-    2. for loop sending token by token
-    3. get logits and choose next token based on score
-    4. Append it
-        input_ids = input_ids + [new_token]
+Things to change or add:
 
-        Now your sequence is longer.
-    5. repeat
-    6. I will stop after 5 times of repeating, meanin for range(5)
-        The reason is because later the stop should be after generating a specific structure output.
-            
-
-
-for each prompt:
-    encode prompt
-    generate tokens (loop)
-    decode result
-    store output
+    1.parsing: check functions and more
+    2.function calling
+    3.constrained decoding
 
 
 
@@ -53,6 +40,37 @@ for each prompt:
 
 
 
+Constrained Decoding:
+✅ Step 1
+
+Take your function names:
+
+fn_add_numbers
+fn_greet
+fn_reverse_string
+✅ Step 2
+
+Encode them
+
+→ token IDs
+✅ Step 3
+
+Now you have:
+
+[
+  [id1, id2, id3, ...],
+  [id4, id5, ...],
+  ...
+]
+✅ Step 4
+
+During generation:
+
+At each step:
+
+compare current generation
+→ filter valid next tokens
+→ restrict logits
 
 
 
@@ -63,15 +81,11 @@ for each prompt:
 
 
 
+||| Constrained Decoding |||
 
+    Constrained generation is conceptually straightforward — we implement a class to apply RegEx constraints in under 40 lines of Python!
 
-
-
-
-
-the first step is: generation_list = the first work's token_id
-the second step is: send the generation list to the get_logits..... function in llm-sdk
-the third step is: append it to the generation list
+    
 
 
 
@@ -80,8 +94,6 @@ the third step is: append it to the generation list
 
 
 
-What I am doing now:
-    trying to append the prediction of the llm to the generation_list
 
 
 
