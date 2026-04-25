@@ -13,12 +13,20 @@ def output_list(data: list, prompt: str, name: str, parameters: dict) -> None:
     }
     data.append(x)
 
+def check(generated_part: list, seq: list, index: int) -> bool:
+    for i in range(index - 1):
+        if generated_part[i] is not seq[i]:
+            return False
+        else:
+            continue
+    return True
+
 def choose_next_token(logits: list, generated_part: list, sequences: list):
     # 1. find matching sequences
-    index = len(generated_part - 1)
+    index = len(generated_part) - 1
     matching = [
         seq for seq in sequences
-        if generated_part == seq[index]
+        if check(generated_part, seq, index) is True
     ]
     # 2. I create a set of allowed tokens
     allowed_tokens = set()
@@ -66,11 +74,6 @@ def function_calling(prompts: list[str]) -> None:
             generation_list.append(chosen)
             if generated_part in sequences:
                 break
-
-
-
-
-
 
 
 # Still need to check the functions in json file: no duplicates 
