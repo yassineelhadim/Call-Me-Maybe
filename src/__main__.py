@@ -13,19 +13,59 @@ def output_list(data: list, prompt: str, name: str, parameters: dict) -> None:
     }
     data.append(x)
 
+def choose_next_token(logits: list, generated_part: list, sequences: list):
+    # 1. find matching sequences
+    index = len(generated_part - 1)
+    matching = [
+        seq for seq in sequences
+        if generated_part == seq[index]
+    ]
+    # 2. I create a set of allowed tokens
+    allowed_tokens = set()
+    state = len(generated_part)
+    for matched in matching:
+        allowed_tokens.add(matched[state])
+    # 3. I mask then I choose the best token
+    for logit in logits:
+        if logit not in allowed_tokens:
+            logit = -float("inf")
+    return logits.index(max(logits))
+
+
+def function_list_tokenizer() -> list:
+    llm = Small_LLM_Model()
+    ft_list = [
+        "fn_add_numbers",
+        "fn_greet",
+        "fn_reverse_string",
+        "fn_get_square_root",
+        "fn_substitute_string_with_regex"
+    ]
+    sequences = []
+    for ft in ft_list:
+        ft_ids = llm.encode(ft).tolist()[0]
+        sequences.append(ft_ids)
+    return sequences
 
 
 def function_calling(prompts: list[str]) -> None:
     sdk_object = Small_LLM_Model()
     for prompt in prompts:
         # p_t_ids is prompt_token_ids, which is the 2D Tensor that has the id of each token
-        p_t_ids: torch.Tensor = sdk_object.encode(prompt)
-        p_t_ids = p_t_ids.tolist()
-        # list_ids is a 1D list of the token ids
-        list_ids = p_t_ids[0]
-        generation_list = list_ids[0]
-        for t_id in list_ids:
-            prds_probs = sdk_object.get_logits_from_input_ids(generation_list)
+        p_t_ids = sdk_object.encode(prompt)
+        p_t_ids = p_t_ids.tolist()[0]
+        token_ids = p_t_ids.copy()
+        generation_list = token_ids.copy()
+        generated_part = []
+        sequences = [ft_id for ft_id in function_list_tokenizer()]
+        for _ in range(20):
+            logits = sdk_object.get_logits_from_input_ids(generation_list)
+            logits = logits.tolist()[0]
+            chosen = choose_next_token(logits, generated_part, sequences)
+            generated_part.append(chosen)
+            generation_list.append(chosen)
+            if generated_part in sequences:
+                break
 
 
 
