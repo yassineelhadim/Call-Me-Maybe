@@ -21,7 +21,7 @@ def check(generated_part: list, seq: list, index: int) -> bool:
             continue
     return True
 
-def choose_next_token(logits: list, generated_part: list, sequences: list):
+def choose_next_token1(logits: list, generated_part: list, sequences: list):
     # 1. find matching sequences
     index = len(generated_part) - 1
     matching = [
@@ -69,11 +69,13 @@ def function_calling(prompts: list[str]) -> None:
         for _ in range(20):
             logits = sdk_object.get_logits_from_input_ids(generation_list)
             logits = logits.tolist()[0]
-            chosen = choose_next_token(logits, generated_part, sequences)
+            chosen = choose_next_token1(logits, generated_part, sequences)
             generated_part.append(chosen)
             generation_list.append(chosen)
             if generated_part in sequences:
                 break
+        for _ in range (30):
+            pass
 
 
 # Still need to check the functions in json file: no duplicates 

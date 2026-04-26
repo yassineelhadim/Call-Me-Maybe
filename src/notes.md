@@ -16,6 +16,7 @@ Things to change or add:
     1.parsing: check functions and more
     2.function calling
     3.constrained decoding
+    4. what if there prompt needs a function that doesn't exists (solve it)
 
 
 
@@ -40,37 +41,6 @@ Things to change or add:
 
 
 
-Constrained Decoding:
-✅ Step 1
-
-Take your function names:
-
-fn_add_numbers
-fn_greet
-fn_reverse_string
-✅ Step 2
-
-Encode them
-
-→ token IDs
-✅ Step 3
-
-Now you have:
-
-[
-  [id1, id2, id3, ...],
-  [id4, id5, ...],
-  ...
-]
-✅ Step 4
-
-During generation:
-
-At each step:
-
-compare current generation
-→ filter valid next tokens
-→ restrict logits
 
 
 
@@ -84,6 +54,46 @@ compare current generation
 ||| Constrained Decoding |||
 
     Constrained generation is conceptually straightforward — we implement a class to apply RegEx constraints in under 40 lines of Python!
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Step 1:
+  State
+  "What part of the JSON am I generating?"
+
+Step 2:
+  "What structure is expected?"
+  List | if else statements
+
+Step 3:
+  Allowed_tokens OR Value Tokens
+
+Step 4:
+  Masking
+
+Step 5:
+  Pick the best token
 
     
 
