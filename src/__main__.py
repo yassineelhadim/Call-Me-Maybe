@@ -1,0 +1,117 @@
+import json
+import sys
+import numpy # type: ignore
+from llm_sdk import Small_LLM_Model
+from parser import format_ft_file
+from parser import function_calling_tests_parser
+from predict_ft import choose_next_token1
+from predict_ft import function_list_tokenizer
+from predict_param import choose_next_token2
+
+
+def create_function_context(functions_list: list) -> str:
+    context = "Available functions:\n"
+    for func in functions_list:
+        param_names = ", ".join(func["parameters"].keys())
+        context += f"- {func['name']}: {func['description']} (params: {param_names})\n"
+    context += "\n"
+    context += "\nExample:\n"
+    context += "Call: fn_substitute_string_with_regex"
+    context += "{\"source_string\": \"hello world foo\", \"regex\": \"\\\\s+\", \"replacement\": \"_\"}\n\n"
+    context += "\nTips:\n"
+    context += "When no function matches the user request choose fn_unknown"
+    return context
+
+
+def function_calling(prompts: list[str], llm: Small_LLM_Model, function_data: list) -> list[dict]:
+    results = []
+    for prompt in prompts:
+        function_context = create_function_context(function_data)
+        full_prompt = function_context + "User request: " + prompt + "\nCall: "
+        p_t_ids = llm.encode(full_prompt).tolist()[0]
+        generation_list = p_t_ids.copy()
+        generated_part = []
+        sequences = function_list_tokenizer(llm, function_data)
+
+        for _ in range(200):
+            logits = llm.get_logits_from_input_ids(generation_list)
+            chosen = choose_next_token1(logits, generated_part, sequences)
+            generated_part.append(chosen)
+            generation_list.append(chosen)
+            if generated_part in sequences:
+                break
+
+        function_name = llm.decode(generated_part)
+
+        # if function_name == "fn_unknown":
+        #     results.append({
+        #         "prompt": prompt,
+        #         "name": "fn_unknown",
+        #         "parameters": {}
+        #     })
+        #     continue
+
+        generated = choose_next_token2(generation_list, function_name, llm, function_data)
+        parameters_str = llm.decode(generated)
+        parameters = json.loads(parameters_str)
+
+        results.append({
+            "prompt": prompt,
+            "name": function_name,
+            "parameters": parameters
+        })
+
+    return results
+
+
+def main():
+    args = sys.argv[1:]
+    functions_definition = None
+    input_file = None
+    output_file = None
+
+    for i in range(len(args)):
+        if args[i] == "--functions_definition":
+            functions_definition = args[i + 1]
+        elif args[i] == "--input":
+            input_file = args[i + 1]
+        elif args[i] == "--output":
+            output_file = args[i + 1]
+
+    if not functions_definition or not input_file or not output_file:
+        print("Usage: uv run python main.py --functions_definition <file> --input <file> --output <file>")
+        sys.exit(1)
+    
+    try:
+        function_calling_tests_parser(input_file)
+        format_ft_file(functions_definition)
+    except Exception as e:
+        print(f"Error during validation: {e}")
+        sys.exit(1)
+
+    # new_ft = {
+    #     "name": "fn_unknown",
+    #     "description": "Called when no other function matches the user request.",
+    #     "parameters": {},
+    #     "returns": {
+    #         "type": "null"
+    #     }
+    # }
+
+    with open(input_file, "r") as f:
+        input_data = json.load(f)
+    with open(functions_definition, "r") as f:
+        function_data = json.load(f)
+        # function_data.append(new_ft)
+
+    prompts = [data["prompt"] for data in input_data]
+    llm = Small_LLM_Model()
+
+    results = function_calling(prompts, llm, function_data)
+
+    with open(output_file, "w") as f:
+        json.dump(results, f, indent=2)
+
+
+if __name__ == "__main__":
+    main()

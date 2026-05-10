@@ -1,0 +1,10 @@
+[project]
+name = "call-me"
+version = "0.1.0"
+description = "42 project - function calling with constrained decoding"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "numpy>=2.4.4",
+    "pydantic>=2.13.4",
+]

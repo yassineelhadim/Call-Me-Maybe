@@ -1,0 +1,46 @@
+[
+  {
+    "prompt": "What is 10 plus 5?",
+    "name": "fn_unknown",
+    "parameters": {}
+  },
+  {
+    "prompt": "Say hello to Alice",
+    "name": "fn_unknown",
+    "parameters": {}
+  },
+  {
+    "prompt": "What is the reverse of 'python'?",
+    "name": "fn_reverse_string",
+    "parameters": {
+      "s": "python"
+    }
+  },
+  {
+    "prompt": "Calculate the square root of 81",
+    "name": "fn_get_square_root",
+    "parameters": {
+      "a": 81.0
+    }
+  },
+  {
+    "prompt": "Replace all spaces in 'hello world' with underscores",
+    "name": "fn_unknown",
+    "parameters": {}
+  },
+  {
+    "prompt": "What is the weather like today?",
+    "name": "fn_unknown",
+    "parameters": {}
+  },
+  {
+    "prompt": "Tell me a joke",
+    "name": "fn_unknown",
+    "parameters": {}
+  },
+  {
+    "prompt": "Who is the president of France?",
+    "name": "fn_unknown",
+    "parameters": {}
+  }
+]

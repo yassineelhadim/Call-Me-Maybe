@@ -1,0 +1,10 @@
+[
+  {"prompt": "What is 10 plus 5?"},
+  {"prompt": "Say hello to Alice"},
+  {"prompt": "What is the reverse of 'python'?"},
+  {"prompt": "Calculate the square root of 81"},
+  {"prompt": "Replace all spaces in 'hello world' with underscores"},
+  {"prompt": "What is the weather like today?"},
+  {"prompt": "Tell me a joke"},
+  {"prompt": "Who is the president of France?"}
+]
