@@ -1,10 +1,12 @@
 [
-  {"prompt": "What is 10 plus 5?"},
-  {"prompt": "Say hello to Alice"},
-  {"prompt": "What is the reverse of 'python'?"},
-  {"prompt": "Calculate the square root of 81"},
-  {"prompt": "Replace all spaces in 'hello world' with underscores"},
-  {"prompt": "What is the weather like today?"},
-  {"prompt": "Tell me a joke"},
-  {"prompt": "Who is the president of France?"}
+  {"prompt": "Multiply 6 by 9"},
+  {"prompt": "What is the absolute value of -42?"},
+  {"prompt": "Concatenate the strings 'hello' and 'world'"},
+  {"prompt": "Convert 100 degrees celsius to fahrenheit"},
+  {"prompt": "What is the maximum of 5 and 8?"},
+  {"prompt": "What is the recipe for chocolate cake?"},
+  {"prompt": "Translate 'goodbye' to French"},
+  {"prompt": "What is the population of Japan?"},
+  {"prompt": "Play a song by The Beatles"},
+  {"prompt": "Set an alarm for 7am tomorrow"}
 ]

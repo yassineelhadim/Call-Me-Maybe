@@ -1,23 +1,41 @@
 import numpy
-from llm_sdk import Small_LLM_Model
+from llm_sdk import Small_LLM_Model  # type: ignore
+from typing import Any
 
 
-def choose_next_token2(prompt_list: list, ft_name: str, llm: Small_LLM_Model, function_data: list) -> list[int]:
-    func = None
+def choose_next_token2(
+    prompt_list: list[int], ft_name: str, llm: Small_LLM_Model, function_data: list[dict[str, Any]]
+) -> list[int]:
+    """
+    Generate tokens for the parameters of a specific function.
+
+    Args:
+        prompt_list (list[int]): The list of tokens corresponding to the prompt.
+        ft_name (str): The chosen function name to generate parameters for.
+        llm (Small_LLM_Model): The language model used for token prediction.
+        function_data (list[dict[str, Any]]): A list of available function definitions.
+
+    Returns:
+        list[int]: The list of generated token IDs representing the JSON
+            parameters object.
+    """
+    func: dict[str, Any] | None = None
     for f in function_data:
         if f["name"] == ft_name:
             func = f
             break
-    params = []
+    if func is None:
+        return llm.encode("{}").tolist()[0]
+    params: list[tuple[str, str]] = []
     for param_name, param_dict in func["parameters"].items():
         params.append((param_name, param_dict["type"]))
     if not params:
         return llm.encode("{}").tolist()[0]
-    state = "START"
-    generated = []
-    param_index = 0
-    generation_list = [p for p in prompt_list]
-    string_length = 0
+    state: str = "START"
+    generated: list[int] = []
+    param_index: int = 0
+    generation_list: list[int] = [p for p in prompt_list]
+    string_length: int = 0
     while True:
         logits = llm.get_logits_from_input_ids(generation_list)
         allowed_tokens = []
@@ -44,9 +62,10 @@ def choose_next_token2(prompt_list: list, ft_name: str, llm: Small_LLM_Model, fu
             continue
 
         elif state == "NUMBER":
-            best_token = numpy.argmax(logits)
+            best_token = int(numpy.argmax(logits))
             decoded = llm.decode([best_token])
-            if decoded.strip() != "" and all(c in "0123456789.-" for c in decoded.strip()):
+            if (decoded.strip() != "" and
+                    all(c in "0123456789.-" for c in decoded.strip())):
                 generation_list.append(best_token)
                 generated.append(best_token)
             else:
@@ -65,7 +84,7 @@ def choose_next_token2(prompt_list: list, ft_name: str, llm: Small_LLM_Model, fu
             state = "STRING_CONTENT"
 
         elif state == "STRING_CONTENT":
-            best_token = numpy.argmax(logits)
+            best_token = int(numpy.argmax(logits))
             decoded = llm.decode([best_token])
             if '"' in decoded or string_length > 200:
                 before_quote = decoded.split('"')[0]
@@ -106,4 +125,4 @@ def choose_next_token2(prompt_list: list, ft_name: str, llm: Small_LLM_Model, fu
         best_token = allowed_tokens[best_idx]
         generation_list.append(best_token)
         generated.append(best_token)
-    return generated
+    return generated

@@ -7,4 +7,12 @@ requires-python = ">=3.13"
 dependencies = [
     "numpy>=2.4.4",
     "pydantic>=2.13.4",
+    "llm-sdk",
+    "mypy>=2.0.0",
+    "accelerate>=1.13.0",
+    "transformers>=5.8.0",
+    "torch>=2.11.0",
 ]
+
+[tool.uv.sources]
+llm-sdk = { path = "llm_sdk/llm_sdk" }
