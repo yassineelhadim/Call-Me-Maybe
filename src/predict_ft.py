@@ -11,10 +11,12 @@ def function_list_tokenizer(
 
     Args:
         llm (Small_LLM_Model): The language model for encoding.
-        function_data (list): A list of function definitions.
+        function_data (list[dict[str, Any]]): A list of function
+            definitions.
 
     Returns:
-        list[list[int]]: A list of encoded token sequences for each function name.
+        list[list[int]]: A list of encoded token sequences for each
+            function name.
     """
     sequences: list[list[int]] = []
     for func in function_data:
@@ -93,5 +95,5 @@ def choose_next_token1(
     for matched in matching:
         if state < len(matched):
             allowed_tokens.append(matched[state])
-    best_idx = numpy.argmax([logits[token] for token in allowed_tokens])
+    best_idx = int(numpy.argmax([logits[token] for token in allowed_tokens]))
     return allowed_tokens[best_idx]

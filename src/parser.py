@@ -15,7 +15,8 @@ def format_ft_file(fp: str) -> None:
     Raises:
         TypeError: If the JSON data is of incorrect type.
         KeyError: If required keys are missing in the data.
-        ValueError: If data contains empty strings, invalid types, or duplicates.
+        ValueError: If data contains empty strings, invalid types,
+            or duplicates.
     """
     with open(fp, "r") as f:
         func_json: Any = json.load(f)
@@ -54,6 +55,7 @@ def format_ft_file(fp: str) -> None:
 
         if "parameters" not in ft:  # paramaters
             raise KeyError("Parameters are MISSING!")
+
         if not isinstance(ft["parameters"], dict):
             raise TypeError("The parameters should be a dict!")
         for k, v in ft["parameters"].items():

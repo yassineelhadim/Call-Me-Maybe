@@ -4,16 +4,22 @@ from typing import Any
 
 
 def choose_next_token2(
-    prompt_list: list[int], ft_name: str, llm: Small_LLM_Model, function_data: list[dict[str, Any]]
+    prompt: str,
+    prompt_list: list[int],
+    ft_name: str,
+    llm: Small_LLM_Model,
+    function_data: list[dict[str, Any]]
 ) -> list[int]:
     """
     Generate tokens for the parameters of a specific function.
 
     Args:
-        prompt_list (list[int]): The list of tokens corresponding to the prompt.
+        prompt_list (list[int]): The list of tokens corresponding to
+            the prompt.
         ft_name (str): The chosen function name to generate parameters for.
         llm (Small_LLM_Model): The language model used for token prediction.
-        function_data (list[dict[str, Any]]): A list of available function definitions.
+        function_data (list[dict[str, Any]]): A list of available function
+            definitions.
 
     Returns:
         list[int]: The list of generated token IDs representing the JSON
@@ -25,12 +31,14 @@ def choose_next_token2(
             func = f
             break
     if func is None:
-        return llm.encode("{}").tolist()[0]
+        empty_params: list[int] = llm.encode("{}").tolist()[0]
+        return empty_params
     params: list[tuple[str, str]] = []
     for param_name, param_dict in func["parameters"].items():
         params.append((param_name, param_dict["type"]))
     if not params:
-        return llm.encode("{}").tolist()[0]
+        empty_params_val: list[int] = llm.encode("{}").tolist()[0]
+        return empty_params_val
     state: str = "START"
     generated: list[int] = []
     param_index: int = 0
@@ -52,7 +60,13 @@ def choose_next_token2(
             continue
 
         elif state == "NEXT_COLON":
-            tokens = llm.encode(": ").tolist()[0]
+            import re
+            numbers = re.findall(r"-\d+\.?\d*", prompt)
+            is_negative = len(numbers) > 0
+            if params[param_index][1] == "number" and is_negative:
+                tokens = llm.encode(":").tolist()[0]
+            else:
+                tokens = llm.encode(": ").tolist()[0]
             generation_list.extend(tokens)
             generated.extend(tokens)
             if params[param_index][1] == "number":
@@ -121,8 +135,10 @@ def choose_next_token2(
         elif state == "END":
             break
 
-        best_idx = numpy.argmax([logits[token] for token in allowed_tokens])
+        best_idx = int(
+            numpy.argmax([logits[token] for token in allowed_tokens])
+        )
         best_token = allowed_tokens[best_idx]
         generation_list.append(best_token)
         generated.append(best_token)
-    return generated
+    return generated

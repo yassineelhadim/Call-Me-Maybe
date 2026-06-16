@@ -1,12 +1,35 @@
 [
-  {"prompt": "Multiply 6 by 9"},
-  {"prompt": "What is the absolute value of -42?"},
-  {"prompt": "Concatenate the strings 'hello' and 'world'"},
-  {"prompt": "Convert 100 degrees celsius to fahrenheit"},
-  {"prompt": "What is the maximum of 5 and 8?"},
-  {"prompt": "What is the recipe for chocolate cake?"},
-  {"prompt": "Translate 'goodbye' to French"},
-  {"prompt": "What is the population of Japan?"},
-  {"prompt": "Play a song by The Beatles"},
-  {"prompt": "Set an alarm for 7am tomorrow"}
+  {
+    "prompt": "What is the sum of 2 and 3?"
+  },
+  {
+    "prompt": "What is the sum of 265 and 345?"
+  },
+  {
+    "prompt": "Greet shrek"
+  },
+  {
+    "prompt": "Greet john"
+  },
+  {
+    "prompt": "Reverse the string 'hello'"
+  },
+  {
+    "prompt": "Reverse the string 'world'"
+  },
+  {
+    "prompt": "What is the square root of 16?"
+  },
+  {
+    "prompt": "Calculate the square root of 144"
+  },
+  {
+    "prompt": "Replace all numbers in \"Hello 34 I'm 233 years old\" with NUMBERS"
+  },
+  {
+    "prompt": "Replace all vowels in 'Programming is fun' with asterisk"
+  },
+  {
+    "prompt": "Substitute the word 'cat' with 'dog' in 'The cat sat on the mat with another cat'"
+  }
 ]
