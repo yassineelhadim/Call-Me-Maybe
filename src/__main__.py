@@ -109,23 +109,17 @@ def main() -> None:
     the input and functions definition files, and generates output.
     """
     args: list[str] = sys.argv[1:]
-    functions_definition: str | None = None
-    input_file: str | None = None
-    output_file: str | None = None
+    functions_definition: str = "data/input/functions_definition.json"
+    input_file: str = "data/input/function_calling_tests.json"
+    output_file: str = "ouput/function_results.json"
 
     for i in range(len(args)):
-        if args[i] == "--functions_definition":
+        if args[i] == "--functions_definition" and i + 1 < len(args):
             functions_definition = args[i + 1]
-        elif args[i] == "--input":
+        elif args[i] == "--input" and i + 1 < len(args):
             input_file = args[i + 1]
-        elif args[i] == "--output":
+        elif args[i] == "--output" and i + 1 < len(args):
             output_file = args[i + 1]
-
-    if not functions_definition or not input_file or not output_file:
-        raise Exception(
-            "Usage: uv run python main.py --functions_definition "
-            "<file> --input <file> --output <file>"
-        )
 
     try:
         function_calling_tests_parser(input_file)
