@@ -1,4 +1,4 @@
-import numpy
+import numpy # type: ignore
 from llm_sdk import Small_LLM_Model  # type: ignore
 from typing import Any
 
@@ -60,26 +60,25 @@ def choose_next_token2(
             continue
 
         elif state == "NEXT_COLON":
-            import re
-            numbers = re.findall(r"-\d+\.?\d*", prompt)
-            is_negative = len(numbers) > 0
-            if params[param_index][1] == "number" and is_negative:
-                tokens = llm.encode(":").tolist()[0]
-            else:
-                tokens = llm.encode(": ").tolist()[0]
+            tokens = llm.encode(":").tolist()[0]
             generation_list.extend(tokens)
             generated.extend(tokens)
             if params[param_index][1] == "number":
                 state = "NUMBER"
             elif params[param_index][1] == "string":
                 state = "STRING_START"
+            elif params[param_index][1] == "integer":
+                state = "INTEGER"
+            elif params[param_index][1] == "boolean":
+                state = "BOOLEAN"
             continue
 
         elif state == "NUMBER":
             best_token = int(numpy.argmax(logits))
             decoded = llm.decode([best_token])
-            if (decoded.strip() != "" and
-                    all(c in "0123456789.-" for c in decoded.strip())):
+            # if (decoded.strip() != "" and
+            #         all(c in "0123456789.-" for c in decoded.strip())):
+            if all(c in "0123456789.-" for c in decoded.strip()) or decoded.strip() == "":
                 generation_list.append(best_token)
                 generated.append(best_token)
             else:
@@ -93,9 +92,40 @@ def choose_next_token2(
                 state = "AFTER_VALUE"
             continue
 
+        elif state == "INTEGER":
+            best_token = int(numpy.argmax(logits))
+            decoded = llm.decode([best_token])
+
+            if (
+                decoded.strip() == ""
+                or all(c in "0123456789-" for c in decoded.strip())
+            ):
+                generation_list.append(best_token)
+                generated.append(best_token)
+            else:
+                state = "AFTER_VALUE"
+            continue
+
         elif state == "STRING_START":
-            allowed_tokens = llm.encode('"').tolist()[0]
+            allowed_tokens = llm.encode(' "').tolist()[0]
             state = "STRING_CONTENT"
+
+        elif state == "BOOLEAN":
+            true_token = llm.encode("true").tolist()[0][0]
+            false_token = llm.encode("false").tolist()[0][0]
+
+            allowed_tokens = [true_token, false_token]
+
+            best_idx = int(
+                numpy.argmax([logits[token] for token in allowed_tokens])
+            )
+            best_token = allowed_tokens[best_idx]
+
+            generation_list.append(best_token)
+            generated.append(best_token)
+
+            state = "AFTER_VALUE"
+            continue
 
         elif state == "STRING_CONTENT":
             best_token = int(numpy.argmax(logits))

@@ -1,8 +1,8 @@
 .PHONY: install run clean debug lint lint-strict
 
-export HF_HOME=/tmp/hf_home
-export UV_CACHE_DIR=/tmp/uv_cache_dir
-export UV_PROJECT_ENVIRONMENT=/tmp/uv_venv
+# export HF_HOME=/tmp/hf_home
+# export UV_CACHE_DIR=/tmp/uv_cache_dir
+# export UV_PROJECT_ENVIRONMENT=/tmp/uv_venv
 
 install:
 	python3 -m pip install .

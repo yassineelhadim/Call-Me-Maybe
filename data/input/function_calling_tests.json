@@ -1,35 +1,62 @@
 [
   {
-    "prompt": "What is the sum of 2 and 3?"
+    "prompt": "Add 14 and 27."
   },
   {
-    "prompt": "What is the sum of 265 and 345?"
+    "prompt": "What is the sum of -55 and 8.5?"
   },
   {
-    "prompt": "Greet shrek"
+    "prompt": "Subtract 25 from 91."
   },
   {
-    "prompt": "Greet john"
+    "prompt": "Multiply 7 by 12."
   },
   {
-    "prompt": "Reverse the string 'hello'"
+    "prompt": "Multiply -8 by 13."
   },
   {
-    "prompt": "Reverse the string 'world'"
+    "prompt": "Calculate the square root of 144."
   },
   {
-    "prompt": "What is the square root of 16?"
+    "prompt": "Please greet Alice."
   },
   {
-    "prompt": "Calculate the square root of 144"
+    "prompt": "Say hello to Bob."
   },
   {
-    "prompt": "Replace all numbers in \"Hello 34 I'm 233 years old\" with NUMBERS"
+    "prompt": "Reverse the string 'OpenAI'."
   },
   {
-    "prompt": "Replace all vowels in 'Programming is fun' with asterisk"
+    "prompt": "Replace every space in 'hello world' with '_'."
   },
   {
-    "prompt": "Substitute the word 'cat' with 'dog' in 'The cat sat on the mat with another cat'"
+    "prompt": "Replace every comma in 'a,b,c,d' with ';'."
+  },
+  {
+    "prompt": "Turn the light on."
+  },
+  {
+    "prompt": "Turn the light off."
+  },
+  {
+    "prompt": "Is it raining today?"
+  },
+  {
+    "prompt": "Translate this sentence to French."
+  },
+  {
+    "prompt": "Book me a flight to Paris."
+  },
+  {
+    "prompt": "What is the capital of Morocco?"
+  },
+  {
+    "prompt": "Sing me a song."
+  },
+  {
+    "prompt": "Multiply five by six."
+  },
+  {
+    "prompt": "Add one hundred and twenty to seven."
   }
 ]

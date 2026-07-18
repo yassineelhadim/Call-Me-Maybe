@@ -4,13 +4,20 @@ import time
 import os
 from typing import Any
 from llm_sdk import Small_LLM_Model  # type: ignore
-
-from .parser import format_ft_file
-from .parser import function_calling_tests_parser
-from .predict_ft import choose_next_token1
-from .predict_ft import function_list_tokenizer
-from .predict_ft import is_function_match
-from .predict_param import choose_next_token2
+try:
+    from .parser import format_ft_file
+    from .parser import function_calling_tests_parser
+    from .predict_ft import choose_next_token1
+    from .predict_ft import function_list_tokenizer
+    from .predict_ft import find_best_matching_function
+    from .predict_param import choose_next_token2
+except ImportError:
+    from parser import format_ft_file
+    from parser import function_calling_tests_parser
+    from predict_ft import choose_next_token1
+    from predict_ft import function_list_tokenizer
+    from predict_ft import find_best_matching_function
+    from predict_param import choose_next_token2
 
 
 def create_function_context(functions_list: list[dict[str, Any]]) -> str:
@@ -24,18 +31,25 @@ def create_function_context(functions_list: list[dict[str, Any]]) -> str:
     Returns:
         str: A formatted string describing the available functions and usage.
     """
+    unk_dict = {
+  "name": "fn_unknown",
+  "description": "Use when no available function matches the user's request.",
+  "parameters": {},
+  "returns": {
+    "type": "string"
+  }
+}
+    functions_list = functions_list + [unk_dict]
     context = "Available functions:\n"
     for func in functions_list:
         param_names = ", ".join(func["parameters"].keys())
         m = f"{func['description']} (params: {param_names})\n"
         context += f"- {func['name']}: {m}"
     context += "\n"
-    # context += "\nExample:\n"
-    # context += "Call: fn_substitute_string_with_regex"
-    # context += "{\"source_string\": \"hello world foo\", "
-    # context += "\"regex\": \"\\\\s+\", \"replacement\": \"_\"}\n\n"
-    # context += "\nTips:\n"
-    # context += "When no function matches the user request choose fn_unknown"
+    context += "\nExample:\n"
+    context += "Call: fn_substitute_string_with_regex"
+    context += "{\"source_string\": \"hello world foo\", "
+    context += "\"regex\": \"\\\\s+\", \"replacement\": \"_\"}\n\n"
     return context
 
 
@@ -72,7 +86,11 @@ def function_calling(
         )
         # checking if the function name generated matches
         # the function names in json file
-        if not is_function_match(prompt, function_data):
+        best_function = find_best_matching_function(
+            prompt,
+            function_data,
+        )
+        if best_function is None:
             results.append({
                 "prompt": prompt,
                 "name": "fn_unknown",
@@ -86,20 +104,18 @@ def function_calling(
             generation_list.append(chosen)
             if generated_part in sequences:
                 break
-
         function_name = llm.decode(generated_part)
         generated = choose_next_token2(
             prompt, generation_list, function_name, llm, function_data
         )
         parameters_str = llm.decode(generated)
+        print(parameters_str)
         parameters = json.loads(parameters_str)
-
         results.append({
             "prompt": prompt,
             "name": function_name,
             "parameters": parameters
         })
-
     return results
 
 
@@ -109,24 +125,30 @@ def main() -> None:
     the input and functions definition files, and generates output.
     """
     args: list[str] = sys.argv[1:]
-    functions_definition: str = "data/input/functions_definition.json"
-    input_file: str = "data/input/function_calling_tests.json"
-    output_file: str = "ouput/function_results.json"
-
+    functions_definition: str | None = None
+    input_file: str | None = None
+    output_file: str | None = None
+    functions_definition = "data/input/functions_definition.json"
+    input_file = "data/input/function_calling_tests.json"
+    output_file = "data/output/function_calls.json"
+    # I need to fix this and add defaults
     for i in range(len(args)):
-        if args[i] == "--functions_definition" and i + 1 < len(args):
+        if args[i] == "--functions_definition":
             functions_definition = args[i + 1]
-        elif args[i] == "--input" and i + 1 < len(args):
+        elif args[i] == "--input":
             input_file = args[i + 1]
-        elif args[i] == "--output" and i + 1 < len(args):
+        elif args[i] == "--output":
             output_file = args[i + 1]
-
+    if not functions_definition or not input_file or not output_file:
+        raise Exception(
+            "Usage: uv run python main.py --functions_definition "
+            "<file> --input <file> --output <file>"
+        )
     try:
         function_calling_tests_parser(input_file)
         format_ft_file(functions_definition)
     except Exception as e:
         raise Exception(f'Error during validation: {e}')
-
     try:
         with open(input_file, "r") as f:
             input_data = json.load(f)
@@ -141,17 +163,15 @@ def main() -> None:
     try:
         results = function_calling(prompts, llm, function_data)
     except Exception as e:
-        raise Exception(f'Json loads Error, {e}')
+        raise Exception(f'Function Calling Error, {e}')
     end_time = time.time()
     duration = end_time - start_time
 
     directory = os.path.dirname(output_file)
     if directory:
         os.makedirs(directory, exist_ok=True)
-
     with open(output_file, "w") as f:
         json.dump(results, f, indent=2)
-
     print("-" * 30)
     print("Execution Summary:")
     print(f"Total prompts processed: {len(prompts)}")

@@ -1,5 +1,7 @@
-import numpy
+import numpy # type: ignore
 from llm_sdk import Small_LLM_Model  # type: ignore
+from typing import Any
+import re
 from typing import Any
 
 
@@ -25,22 +27,21 @@ def function_list_tokenizer(
     return sequences
 
 
-def is_function_match(
+def normalize_words(text: str) -> set[str]:
+    """
+    Normalize a string into a set of lowercase words.
+    """
+    text = text.lower().replace("_", " ")
+    words = re.findall(r"[a-z0-9]+", text)
+    return set(words)
+
+def find_best_matching_function(
     prompt: str,
     function_data: list[dict[str, Any]],
-) -> bool:
+) -> str | None:
     """
-    Determine if any available function matches the user prompt by checking
-    if any meaningful words from the prompt appear in function names or
-    descriptions.
-
-    Args:
-        prompt (str): The user's natural language request.
-        function_data (list[dict[str, Any]]): A list of available function
-            definitions, each containing a name and description.
-
-    Returns:
-        bool: True if a function likely matches the request, False otherwise.
+    Return the name of the function that best matches the prompt,
+    or None if no function is similar enough.
     """
     stopwords = {
         "a", "an", "the", "is", "in", "of", "to", "and", "or",
@@ -48,28 +49,29 @@ def is_function_match(
         "it", "this", "that", "do", "does", "please", "could",
         "would", "all", "some", "any", "from", "by", "on", "at"
     }
-    prompt_words = {
-        w.strip("'\"?,!.").lower() for w in prompt.split()
-    } - stopwords
+
+    prompt_words = normalize_words(prompt) - stopwords
+
+    best_name: str | None = None
+    best_score = 0
 
     for func in function_data:
-        if func["name"] == "fn_unknown":
-            continue
-        combined = (
-            func["description"] + " " +
-            func["name"].replace("fn_", "").replace("_", " ")
-        )
-        func_words = {
-            w.strip("'\"?,!.") for w in combined.lower().split()
-        } - stopwords
-        if any(
-            pw in fw or fw in pw
-            for pw in prompt_words
-            for fw in func_words
-        ):
-            return True
-    return False
+        function_words = (
+            normalize_words(func["name"]) |
+            normalize_words(func["description"])
+        ) - stopwords
 
+        score = len(prompt_words & function_words)
+
+        if score > best_score:
+            best_score = score
+            best_name = func["name"]
+
+    # Require at least one meaningful common word.
+    if best_score == 0:
+        return None
+
+    return best_name
 
 def choose_next_token1(
     logits: list[float], generated_part: list[int], sequences: list[list[int]]
