@@ -8,6 +8,7 @@ class ReturnSchema(BaseModel):
     """Schema for a function return value."""
     model_config = ConfigDict(extra="forbid")
     type: str
+
     @field_validator("type")
     @classmethod
     def validate_type(cls, value: str) -> str:
@@ -21,6 +22,7 @@ class ParameterSchema(BaseModel):
     """Schema for a function parameter."""
     model_config = ConfigDict(extra="forbid")
     type: str
+
     @field_validator("type")
     @classmethod
     def validate_type(cls, value: str) -> str:
@@ -37,6 +39,7 @@ class FunctionDefinition(BaseModel):
     description: str
     parameters: dict[str, ParameterSchema]
     returns: ReturnSchema
+
     @field_validator("name", "description")
     @classmethod
     def validate_string(cls, value: str) -> str:
@@ -50,6 +53,7 @@ class Prompt(BaseModel):
     """Schema for an input prompt."""
     model_config = ConfigDict(extra="forbid")
     prompt: str
+
     @field_validator("prompt")
     @classmethod
     def validate_prompt(cls, value: str) -> str:
@@ -117,4 +121,4 @@ def function_calling_tests_parser(fp: str) -> list[Prompt]:
         ]
     except ValidationError as e:
         raise ValueError(str(e)) from e
-    return prompts
+    return prompts

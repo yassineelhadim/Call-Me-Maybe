@@ -1,5 +1,5 @@
-import numpy # type: ignore
-from llm_sdk import Small_LLM_Model  # type: ignore
+import numpy
+from llm_sdk import Small_LLM_Model
 from typing import Any
 
 
@@ -78,7 +78,8 @@ def choose_next_token2(
             decoded = llm.decode([best_token])
             # if (decoded.strip() != "" and
             #         all(c in "0123456789.-" for c in decoded.strip())):
-            if all(c in "0123456789.-" for c in decoded.strip()) or decoded.strip() == "":
+            if (all(c in "0123456789.-" for c in decoded.strip()) or
+                    decoded.strip() == ""):
                 generation_list.append(best_token)
                 generated.append(best_token)
             else:

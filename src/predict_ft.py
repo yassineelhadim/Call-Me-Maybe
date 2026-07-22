@@ -1,8 +1,7 @@
-import numpy # type: ignore
-from llm_sdk import Small_LLM_Model  # type: ignore
+import numpy
+from llm_sdk import Small_LLM_Model
 from typing import Any
 import re
-from typing import Any
 
 
 def function_list_tokenizer(
@@ -34,6 +33,7 @@ def normalize_words(text: str) -> set[str]:
     text = text.lower().replace("_", " ")
     words = re.findall(r"[a-z0-9]+", text)
     return set(words)
+
 
 def find_best_matching_function(
     prompt: str,
@@ -72,6 +72,7 @@ def find_best_matching_function(
         return None
 
     return best_name
+
 
 def choose_next_token1(
     logits: list[float], generated_part: list[int], sequences: list[list[int]]

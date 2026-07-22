@@ -32,13 +32,14 @@ def create_function_context(functions_list: list[dict[str, Any]]) -> str:
         str: A formatted string describing the available functions and usage.
     """
     unk_dict = {
-  "name": "fn_unknown",
-  "description": "Use when no available function matches the user's request.",
-  "parameters": {},
-  "returns": {
-    "type": "string"
-  }
-}
+        "name": "fn_unknown",
+        "description": "Use when no available function "
+                       "matches the user's request.",
+        "parameters": {},
+        "returns": {
+            "type": "string"
+        }
+    }
     functions_list = functions_list + [unk_dict]
     context = "Available functions:\n"
     for func in functions_list:
