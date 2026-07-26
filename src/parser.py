@@ -24,7 +24,6 @@ class ParameterSchema(BaseModel):
     type: str
 
     @field_validator("type")
-    @classmethod
     def validate_type(cls, value: str) -> str:
         value = value.strip()
         if not value:
@@ -41,7 +40,6 @@ class FunctionDefinition(BaseModel):
     returns: ReturnSchema
 
     @field_validator("name", "description")
-    @classmethod
     def validate_string(cls, value: str) -> str:
         value = value.strip()
         if not value:
@@ -55,11 +53,10 @@ class Prompt(BaseModel):
     prompt: str
 
     @field_validator("prompt")
-    @classmethod
     def validate_prompt(cls, value: str) -> str:
         value = value.strip()
-        if not value:
-            raise ValueError("Prompt cannot be empty.")
+        # if not value:
+        #     raise ValueError("Prompt cannot be empty.")
         return value
 
 
@@ -121,4 +118,4 @@ def function_calling_tests_parser(fp: str) -> list[Prompt]:
         ]
     except ValidationError as e:
         raise ValueError(str(e)) from e
-    return prompts
+    return prompts

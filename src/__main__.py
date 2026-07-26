@@ -74,6 +74,9 @@ def function_calling(
     """
     results: list[dict[str, Any]] = []
     for prompt in prompts:
+        if not prompt.strip():
+            print("Empty prompt, it will be skipped.")
+            continue
         # Necessary lists and objects for generating tokens
         function_context = create_function_context(function_data)
         full_prompt = (
