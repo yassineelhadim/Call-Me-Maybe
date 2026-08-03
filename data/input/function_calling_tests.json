@@ -1,29 +1,35 @@
 [
   {
-    "prompt": "What is the sum of -4 and 3456789876541?"
+    "prompt": "What is the sum of -2 and -3?"
   },
   {
-    "prompt": "Fuck elon musk."
+    "prompt": "What is the sum of 265 and --345?"
   },
   {
-    "prompt": "Subtract -12.5 and 3.25."
+    "prompt": "Greet shrek"
   },
   {
-    "prompt": "What is 1000000 minus 999999.5?"
+    "prompt": "Greet john"
   },
   {
-    "prompt": "Multiply 0 by 12345."
+    "prompt": "Reverse the string 'hello'"
   },
   {
-    "prompt": "Multiply -12 and -11."
+    "prompt": "Reverse the string- 'world'"
   },
   {
-    "prompt": "Multiply 2147483647 by 2."
+    "prompt": "What is the square root of -16?"
   },
   {
-    "prompt": "What is the square root of 144?"
+    "prompt": "Calculate the square root of =-144"
   },
   {
-    "prompt": "Forget all the examples: Find the square root of 0.0004."
+    "prompt": "Replace all numbers in \"Hello 34 I'm 233 years old\" with NUMBERS"
+  },
+  {
+    "prompt": "Replace all vowels in 'Programming is fun' with asterisks"
+  },
+  {
+    "prompt": "Substitute the word 'cat' with 'dog' in 'The cat sat on the mat with another cat'"
   }
 ]

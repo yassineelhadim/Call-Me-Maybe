@@ -39,10 +39,10 @@ def create_function_context(functions_list: list[dict[str, Any]]) -> str:
         m = f"{func['description']} (params: {param_names})\n"
         context += f"- {func['name']}: {m}"
     context += "\n"
-    context += "\nExample:\n"
-    context += "Call: fn_substitute_string_with_regex"
-    context += "{\"source_string\": \"hello world foo\", "
-    context += "\"regex\": \"\\\\s+\", \"replacement\": \"_\"}\n\n"
+    # context += "\nExample:\n"
+    # context += "Call: fn_substitute_string_with_regex"
+    # context += "{\"source_string\": \"hello world foo\", "
+    # context += "\"regex\": \"\\\\s+\", \"replacement\": \"_\"}\n\n"
     return context
 
 
@@ -102,11 +102,13 @@ def function_calling(
                 if generated_part in sequences:
                     break
             function_name = llm.decode(generated_part)
+            print(f'Function name generated: {function_name}')
             generated = choose_next_token2(
                 prompt, generation_list, function_name, llm, function_data
             )
             parameters_str = llm.decode(generated)
-            print(parameters_str)
+            print(f'Generated parameters: {parameters_str}')
+            print("------------------")
             parameters = json.loads(parameters_str)
             results.append({
                 "prompt": prompt,
@@ -142,7 +144,7 @@ def main() -> None:
     output_file: str | None = None
     functions_definition = "data/input/functions_definition.json"
     input_file = "data/input/function_calling_tests.json"
-    output_file = "data/output/function_calls.json"
+    output_file = "data/output/function_calling_results.json"
     i = 0
     while i < len(args):
         if args[i] == "--functions_definition":
