@@ -1,7 +1,10 @@
-import numpy
-from llm_sdk import Small_LLM_Model
-from typing import Any
 import re
+from typing import Any
+
+import numpy
+from llm_sdk import (  # type: ignore[attr-defined]
+    Small_LLM_Model,
+)
 
 
 def function_list_tokenizer(

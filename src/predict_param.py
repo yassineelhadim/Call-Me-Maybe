@@ -1,6 +1,9 @@
-import numpy
-from llm_sdk import Small_LLM_Model
 from typing import Any
+
+import numpy
+from llm_sdk import (  # type: ignore[attr-defined]
+    Small_LLM_Model,
+)
 
 
 def choose_next_token2(
@@ -85,8 +88,12 @@ def choose_next_token2(
             else:
                 # I will check if last part generated contains a "."
                 full_gen_str = llm.decode(generated)
-                val_str = full_gen_str.split(': ')[-1]
-                if "." not in val_str:
+                val_str = full_gen_str.rsplit(":", 1)[-1]
+                if "." not in val_str and val_str.strip() == "":
+                    dot_zero = llm.encode("0.0").tolist()[0]
+                    generation_list.extend(dot_zero)
+                    generated.extend(dot_zero)
+                elif "." not in val_str and val_str.strip() != "":
                     dot_zero = llm.encode(".0").tolist()[0]
                     generation_list.extend(dot_zero)
                     generated.extend(dot_zero)

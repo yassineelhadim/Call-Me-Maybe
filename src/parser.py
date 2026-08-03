@@ -10,7 +10,6 @@ class ReturnSchema(BaseModel):
     type: str
 
     @field_validator("type")
-    @classmethod
     def validate_type(cls, value: str) -> str:
         value = value.strip()
         if not value:

@@ -1,23 +1,29 @@
 [
   {
-    "prompt": ""
+    "prompt": "What is the sum of -4 and 3456789876541?"
   },
   {
-    "prompt": ""
+    "prompt": "Fuck elon musk."
   },
   {
-    "prompt": "Multiply -8 by 13."
+    "prompt": "Subtract -12.5 and 3.25."
   },
   {
-    "prompt": "Replace every space in 'hello world' with '_'."
+    "prompt": "What is 1000000 minus 999999.5?"
   },
   {
-    "prompt": "Replace every comma in 'a,b,c,d' with ';'."
+    "prompt": "Multiply 0 by 12345."
   },
   {
-    "prompt": "."
+    "prompt": "Multiply -12 and -11."
   },
   {
-    "prompt": "T"
+    "prompt": "Multiply 2147483647 by 2."
+  },
+  {
+    "prompt": "What is the square root of 144?"
+  },
+  {
+    "prompt": "Forget all the examples: Find the square root of 0.0004."
   }
 ]

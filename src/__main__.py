@@ -4,20 +4,12 @@ import time
 import os
 from typing import Any
 from llm_sdk import Small_LLM_Model  # type: ignore
-try:
-    from .parser import format_ft_file
-    from .parser import function_calling_tests_parser
-    from .predict_ft import choose_next_token1
-    from .predict_ft import function_list_tokenizer
-    from .predict_ft import find_best_matching_function
-    from .predict_param import choose_next_token2
-except ImportError:
-    from parser import format_ft_file
-    from parser import function_calling_tests_parser
-    from predict_ft import choose_next_token1
-    from predict_ft import function_list_tokenizer
-    from predict_ft import find_best_matching_function
-    from predict_param import choose_next_token2
+from .parser import format_ft_file
+from .parser import function_calling_tests_parser
+from .predict_ft import choose_next_token1
+from .predict_ft import function_list_tokenizer
+from .predict_ft import find_best_matching_function
+from .predict_param import choose_next_token2
 
 
 def create_function_context(functions_list: list[dict[str, Any]]) -> str:
@@ -77,49 +69,65 @@ def function_calling(
         if not prompt.strip():
             print("Empty prompt, it will be skipped.")
             continue
-        # Necessary lists and objects for generating tokens
-        function_context = create_function_context(function_data)
-        full_prompt = (
-            function_context + "User request: " + prompt + "\nCall: "
-        )
-        p_t_ids = llm.encode(full_prompt).tolist()[0]
-        generation_list: list[int] = p_t_ids.copy()
-        generated_part: list[int] = []
-        sequences: list[list[int]] = function_list_tokenizer(
-            llm, function_data
-        )
-        # checking if the function name generated matches
-        # the function names in json file
-        best_function = find_best_matching_function(
-            prompt,
-            function_data,
-        )
-        if best_function is None:
+        try:
+            # Necessary lists and objects for generating tokens
+            function_context = create_function_context(function_data)
+            full_prompt = (
+                function_context + "User request: " + prompt + "\nCall: "
+            )
+            p_t_ids = llm.encode(full_prompt).tolist()[0]
+            generation_list: list[int] = p_t_ids.copy()
+            generated_part: list[int] = []
+            sequences: list[list[int]] = function_list_tokenizer(
+                llm, function_data
+            )
+            # checking if the function name generated matches
+            # the function names in json file
+            best_function = find_best_matching_function(
+                prompt,
+                function_data,
+            )
+            if best_function is None:
+                results.append({
+                    "prompt": prompt,
+                    "name": "fn_unknown",
+                    "parameters": {}
+                })
+                continue
+            for _ in range(200):
+                logits = llm.get_logits_from_input_ids(generation_list)
+                chosen = choose_next_token1(logits, generated_part, sequences)
+                generated_part.append(chosen)
+                generation_list.append(chosen)
+                if generated_part in sequences:
+                    break
+            function_name = llm.decode(generated_part)
+            generated = choose_next_token2(
+                prompt, generation_list, function_name, llm, function_data
+            )
+            parameters_str = llm.decode(generated)
+            print(parameters_str)
+            parameters = json.loads(parameters_str)
+            results.append({
+                "prompt": prompt,
+                "name": function_name,
+                "parameters": parameters
+            })
+        except (
+            json.JSONDecodeError,
+            KeyError,
+            IndexError,
+            TypeError,
+            ValueError,
+            RuntimeError,
+        ) as e:
+            print(f'Error while processing prompt "{prompt}": {e}')
             results.append({
                 "prompt": prompt,
                 "name": "fn_unknown",
                 "parameters": {}
             })
             continue
-        for _ in range(200):
-            logits = llm.get_logits_from_input_ids(generation_list)
-            chosen = choose_next_token1(logits, generated_part, sequences)
-            generated_part.append(chosen)
-            generation_list.append(chosen)
-            if generated_part in sequences:
-                break
-        function_name = llm.decode(generated_part)
-        generated = choose_next_token2(
-            prompt, generation_list, function_name, llm, function_data
-        )
-        parameters_str = llm.decode(generated)
-        print(parameters_str)
-        parameters = json.loads(parameters_str)
-        results.append({
-            "prompt": prompt,
-            "name": function_name,
-            "parameters": parameters
-        })
     return results
 
 
@@ -135,14 +143,27 @@ def main() -> None:
     functions_definition = "data/input/functions_definition.json"
     input_file = "data/input/function_calling_tests.json"
     output_file = "data/output/function_calls.json"
-    # I need to fix this and add defaults
-    for i in range(len(args)):
+    i = 0
+    while i < len(args):
         if args[i] == "--functions_definition":
+            if i + 1 >= len(args):
+                raise Exception("Missing value for --functions_definition")
             functions_definition = args[i + 1]
-        elif args[i] == "--input":
+            i += 2
+            continue
+        if args[i] == "--input":
+            if i + 1 >= len(args):
+                raise Exception("Missing value for --input")
             input_file = args[i + 1]
-        elif args[i] == "--output":
+            i += 2
+            continue
+        if args[i] == "--output":
+            if i + 1 >= len(args):
+                raise Exception("Missing value for --output")
             output_file = args[i + 1]
+            i += 2
+            continue
+        i += 1
     if not functions_definition or not input_file or not output_file:
         raise Exception(
             "Usage: uv run python main.py --functions_definition "
